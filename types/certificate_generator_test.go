@@ -5,8 +5,9 @@ import (
 
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/cloudfoundry/config-server/types/typesfakes"
 	"time"
+
+	"github.com/cloudfoundry/config-server/types/typesfakes"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -133,6 +134,11 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						Expect(certificate.ExtKeyUsage).To(BeEmpty())
 					})
 
+					It("sets SubjectKeyId", func() {
+						Expect(certificate.SubjectKeyId).ToNot(BeNil())
+						Expect(certificate.SubjectKeyId).To(HaveLen(20))
+					})
+
 					It("sets Issuer, Country & Org", func() {
 						Expect(certificate.Issuer.Country).To(Equal([]string{"USA"}))
 						Expect(certificate.Issuer.Organization).To(Equal([]string{"Cloud Foundry"}))
@@ -158,6 +164,11 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 					It("sets KeyUsage and ExtKeyUsage", func() {
 						Expect(certificate.KeyUsage).To(Equal(x509.KeyUsageCertSign | x509.KeyUsageCRLSign))
 						Expect(certificate.ExtKeyUsage).To(BeEmpty())
+					})
+
+					It("sets SubjectKeyId", func() {
+						Expect(certificate.SubjectKeyId).ToNot(BeNil())
+						Expect(certificate.SubjectKeyId).To(HaveLen(20))
 					})
 
 					It("sets Issuer Country & Org", func() {
@@ -302,6 +313,14 @@ sHx2rlaLkmSreYJsmVaiSp0E9lhdympuDF+WKRolkQ==
 						key, _ := x509.ParsePKCS1PrivateKey(block.Bytes)
 
 						Expect(certificate.PublicKey).To(Equal(&key.PublicKey))
+					})
+
+					It("should have a SubjectKeyId", func() {
+						certResp := getCertResp(generator, params)
+						certificate, _ := parseCertString(certResp.Certificate)
+
+						Expect(certificate.SubjectKeyId).ToNot(BeNil())
+						Expect(certificate.SubjectKeyId).To(HaveLen(20))
 					})
 
 					Context("when ExtKeyUsage is NOT empty", func() {
